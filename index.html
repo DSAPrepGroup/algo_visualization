@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithm Visualization Index</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-around;
+            background-color: #333;
+            padding: 10px 0;
+            width: 100%;
+            position: absolute;
+            top: 0;
+        }
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            justify-content: space-evenly;
+        }
+        .navbar ul li {
+            padding: 10px;
+        }
+        .navbar ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+        }
+        .navbar ul li a:hover {
+            background-color: #575757;
+            border-radius: 5px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            width: 60%;
+            margin: 100px auto 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .modules {
+            margin-top: 20px;
+        }
+        .modules a {
+            display: inline-block;
+            margin: 10px;
+            color: blue;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <ul>
+            <li><a href="#" onclick="loadHome()">Home</a></li>
+            <li><a href="#" onclick="loadAbout()">About</a></li>
+            <li><a href="#" onclick="loadContact()">Contact</a></li>
+        </ul>
+    </nav>
+    <div class="container" id="mainContent">
+        <h1>Algorithm Visualization Index</h1>
+        <div class="modules">
+            <a href="#" onclick="loadVisualization('nge')">496. Next Greater Element I</a>
+            <a href="https://leetcode.com/problems/next-greater-element-i/" target="_blank" style="color: green; margin-left: 10px;">Leetcode</a>
+        </div>
+    </div>
+    <script>
+        function loadHome() {
+            document.getElementById('mainContent').innerHTML = `
+                <h1>Algorithm Visualization Index</h1>
+                <div class="modules">
+                    <a href="#" onclick="loadVisualization('nge')">496. Next Greater Element I</a>
+                    <a href="https://leetcode.com/problems/next-greater-element-i/" target="_blank" style="color: green; margin-left: 10px;">Leetcode</a>
+                </div>
+            `;
+        }
+
+        function loadAbout() {
+            document.getElementById('mainContent').innerHTML = `
+                <h1>About</h1>
+                <p>Algorithm Visualization Index v.1.0.0</p>
+                <button onclick="loadHome()">Back</button>
+            `;
+        }
+
+        function loadContact() {
+            document.getElementById('mainContent').innerHTML = `
+                <h1>Contact</h1>
+                <a href='https://github.com/shakti2491' target='_blank'>shakti2491</a>
+                <a href='https://github.com/rananishant110' target='_blank'>rananishant110</a>
+                <a href='https://github.com/kgole' target='_blank'>kgole</a><br>
+                <button onclick="loadHome()">Back</button>
+            `;
+        }
+        
+        function loadVisualization(algorithm) {
+            if (algorithm === 'nge') {
+                document.getElementById('mainContent').innerHTML = `
+                    <h1>496. Next Greater Element I Visualization</h1>
+                    <p>Enter arrays to test the algorithm:</p>
+                    <input id="nums1" type="text" placeholder="Enter nums1 (comma separated)">
+                    <input id="nums2" type="text" placeholder="Enter nums2 (comma separated)">
+                    <button onclick="startVisualization()">Start</button>
+                    <button onclick="nextStep()" id="nextStepBtn" disabled>Next Step</button>
+                    <div class="output-container">
+                        <h3>Stack Trace:</h3>
+                        <pre id="stackTrace"></pre>
+                        <h3>Map State:</h3>
+                        <pre id="mapState"></pre>
+                        <h3>Output:</h3>
+                        <pre id="output"></pre>
+                    </div>
+                    <button onclick="loadHome()">Back</button>
+                `;
+            }
+        }
+
+        let steps = [];
+        let currentStep = 0;
+        function startVisualization() {
+            let nums1 = document.getElementById('nums1').value.split(',').map(Number);
+            let nums2 = document.getElementById('nums2').value.split(',').map(Number);
+            let stack = [];
+            let map = {};
+            steps = [];
+            currentStep = 0;
+            for (let num of nums2) {
+                steps.push({ type: 'push', value: num, stack: [...stack] });
+                while (stack.length > 0 && num > stack[stack.length - 1]) {
+                    let popped = stack.pop();
+                    map[popped] = num;
+                    steps.push({ type: 'pop', popped, mappedTo: num, stack: [...stack], map: { ...map } });
+                }
+                stack.push(num);
+            }
+            while (stack.length > 0) {
+                let popped = stack.pop();
+                map[popped] = -1;
+                steps.push({ type: 'pop', popped, mappedTo: -1, stack: [...stack], map: { ...map } });
+            }
+            let result = nums1.map(num => map[num] ?? -1);
+            steps.push({ type: 'result', result });
+            document.getElementById('nextStepBtn').disabled = false;
+        }
+        function nextStep() {
+            if (currentStep >= steps.length) {
+                document.getElementById('nextStepBtn').disabled = true;
+                return;
+            }
+            let step = steps[currentStep];
+            document.getElementById('stackTrace').innerText = step.stack ? `Stack: ${step.stack.join(', ')}` : '';
+            document.getElementById('mapState').innerText = step.map ? JSON.stringify(step.map, null, 2) : '';
+            document.getElementById('output').innerText = step.result ? `Final Output: ${step.result.join(', ')}` : '';
+            currentStep++;
+        }
+    </script>
+</body>
+</html>
